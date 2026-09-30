@@ -10,7 +10,7 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
 
     List<Subscription> findByUserId(String userId);
 
-    Optional<Subscription> findByUserIdAndTopicName(String userId, String topicName);
+    Optional<Subscription> findByUserIdAndCityName(String userId, String cityName);
 
-    boolean existsByUserIdAndTopicName(String userId, String topicName);
+    boolean existsByUserIdAndCityName(String userId, String cityName);
 }

@@ -15,32 +15,32 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   return (text ? JSON.parse(text) : undefined) as T;
 }
 
-export function subscribeTopic(userId: string, topicName: string) {
-  return request<void>(`/api/topics/${encodeURIComponent(topicName)}/subscribe`, {
+export function subscribeCity(userId: string, cityName: string) {
+  return request<void>(`/api/cities/${encodeURIComponent(cityName)}/subscribe`, {
     method: "POST",
     body: JSON.stringify({ userId }),
   });
 }
 
-export function unsubscribeTopic(userId: string, topicName: string) {
+export function unsubscribeCity(userId: string, cityName: string) {
   return request<void>(
-    `/api/topics/${encodeURIComponent(topicName)}/subscribe?userId=${encodeURIComponent(userId)}`,
+    `/api/cities/${encodeURIComponent(cityName)}/subscribe?userId=${encodeURIComponent(userId)}`,
     { method: "DELETE" },
   );
 }
 
 export function mySubscriptions(userId: string) {
-  return request<string[]>(`/api/topics/mine?userId=${encodeURIComponent(userId)}`);
+  return request<string[]>(`/api/cities/mine?userId=${encodeURIComponent(userId)}`);
 }
 
-export function availableSlots(topicName: string) {
-  return request<SlotDto[]>(`/api/topics/${encodeURIComponent(topicName)}/slots`);
+export function availableSlots(cityName: string) {
+  return request<SlotDto[]>(`/api/cities/${encodeURIComponent(cityName)}/slots`);
 }
 
-export function publishSlot(topicName: string, startTime: string, endTime: string) {
+export function publishSlot(cityName: string, startTime: string, endTime: string) {
   return request<SlotDto>(`/api/admin/slots`, {
     method: "POST",
-    body: JSON.stringify({ topicName, startTime, endTime }),
+    body: JSON.stringify({ cityName, startTime, endTime }),
   });
 }
 

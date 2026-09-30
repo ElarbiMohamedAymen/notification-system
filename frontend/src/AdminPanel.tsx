@@ -1,13 +1,15 @@
 import { useState } from "react";
 import * as api from "./api";
 
+const CITY_SUGGESTIONS = ["Paris", "Lyon", "Marseille", "Tunis", "Sfax", "Sousse"];
+
 function toLocalInputValue(date: Date): string {
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
 export default function AdminPanel() {
-  const [topicName, setTopicName] = useState("station-42");
+  const [cityName, setCityName] = useState("Paris");
   const [startTime, setStartTime] = useState(toLocalInputValue(new Date(Date.now() + 60 * 60 * 1000)));
   const [endTime, setEndTime] = useState(toLocalInputValue(new Date(Date.now() + 2 * 60 * 60 * 1000)));
   const [message, setMessage] = useState<string | null>(null);
@@ -15,8 +17,8 @@ export default function AdminPanel() {
   async function handlePublish() {
     setMessage(null);
     try {
-      const slot = await api.publishSlot(topicName, new Date(startTime).toISOString(), new Date(endTime).toISOString());
-      setMessage(`Published slot #${slot.id} on "${topicName}" — pushed to subscribers.`);
+      const slot = await api.publishSlot(cityName, new Date(startTime).toISOString(), new Date(endTime).toISOString());
+      setMessage(`Published slot #${slot.id} for "${cityName}" — pushed to everyone listening for that city.`);
     } catch (e) {
       setMessage(e instanceof Error ? e.message : "Failed to publish slot");
     }
@@ -27,8 +29,13 @@ export default function AdminPanel() {
       <h2>Publish an available slot</h2>
       <div className="row">
         <label>
-          Topic
-          <input value={topicName} onChange={(e) => setTopicName(e.target.value)} />
+          City
+          <input value={cityName} onChange={(e) => setCityName(e.target.value)} list="city-suggestions" />
+          <datalist id="city-suggestions">
+            {CITY_SUGGESTIONS.map((city) => (
+              <option key={city} value={city} />
+            ))}
+          </datalist>
         </label>
       </div>
       <div className="row">

@@ -18,36 +18,36 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/topics")
-public class SubscriptionController {
+@RequestMapping("/api/cities")
+public class CityController {
 
     private final SubscriptionService subscriptionService;
     private final SlotService slotService;
 
-    public SubscriptionController(SubscriptionService subscriptionService, SlotService slotService) {
+    public CityController(SubscriptionService subscriptionService, SlotService slotService) {
         this.subscriptionService = subscriptionService;
         this.slotService = slotService;
     }
 
-    @PostMapping("/{topicName}/subscribe")
-    public ResponseEntity<Void> subscribe(@PathVariable String topicName, @Valid @RequestBody SubscribeRequest request) {
-        subscriptionService.subscribe(request.userId(), topicName);
+    @PostMapping("/{cityName}/subscribe")
+    public ResponseEntity<Void> subscribe(@PathVariable String cityName, @Valid @RequestBody SubscribeRequest request) {
+        subscriptionService.subscribe(request.userId(), cityName);
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{topicName}/subscribe")
-    public ResponseEntity<Void> unsubscribe(@PathVariable String topicName, @RequestParam String userId) {
-        subscriptionService.unsubscribe(userId, topicName);
+    @DeleteMapping("/{cityName}/subscribe")
+    public ResponseEntity<Void> unsubscribe(@PathVariable String cityName, @RequestParam String userId) {
+        subscriptionService.unsubscribe(userId, cityName);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/mine")
     public List<String> mySubscriptions(@RequestParam String userId) {
-        return subscriptionService.topicsFor(userId);
+        return subscriptionService.citiesFor(userId);
     }
 
-    @GetMapping("/{topicName}/slots")
-    public List<SlotDto> availableSlots(@PathVariable String topicName) {
-        return slotService.availableSlots(topicName);
+    @GetMapping("/{cityName}/slots")
+    public List<SlotDto> availableSlots(@PathVariable String cityName) {
+        return slotService.availableSlots(cityName);
     }
 }

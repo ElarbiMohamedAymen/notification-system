@@ -9,8 +9,8 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "topics", uniqueConstraints = @UniqueConstraint(columnNames = "name"))
-public class Topic {
+@Table(name = "cities", uniqueConstraints = @UniqueConstraint(columnNames = "name"))
+public class City {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,10 +19,10 @@ public class Topic {
     @Column(nullable = false, unique = true)
     private String name;
 
-    protected Topic() {
+    protected City() {
     }
 
-    public Topic(String name) {
+    public City(String name) {
         this.name = name;
     }
 

@@ -12,7 +12,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "subscriptions", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "topic_id"}))
+@Table(name = "subscriptions", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "city_id"}))
 public class Subscription {
 
     @Id
@@ -23,15 +23,15 @@ public class Subscription {
     private String userId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "topic_id", nullable = false)
-    private Topic topic;
+    @JoinColumn(name = "city_id", nullable = false)
+    private City city;
 
     protected Subscription() {
     }
 
-    public Subscription(String userId, Topic topic) {
+    public Subscription(String userId, City city) {
         this.userId = userId;
-        this.topic = topic;
+        this.city = city;
     }
 
     public Long getId() {
@@ -42,7 +42,7 @@ public class Subscription {
         return userId;
     }
 
-    public Topic getTopic() {
-        return topic;
+    public City getCity() {
+        return city;
     }
 }

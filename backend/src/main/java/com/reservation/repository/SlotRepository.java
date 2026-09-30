@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface SlotRepository extends JpaRepository<Slot, Long> {
 
-    List<Slot> findByTopicNameAndStatus(String topicName, SlotStatus status);
+    List<Slot> findByCityNameAndStatus(String cityName, SlotStatus status);
 }

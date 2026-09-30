@@ -2,6 +2,7 @@ package com.reservation.service;
 
 import com.reservation.domain.Slot;
 import com.reservation.dto.SlotDto;
+import com.reservation.event.SlotEventProducer;
 import com.reservation.exception.SlotNotAvailableException;
 import com.reservation.exception.SlotNotFoundException;
 import com.reservation.repository.SlotRepository;
@@ -13,11 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReservationService {
 
     private final SlotRepository slotRepository;
-    private final NotificationService notificationService;
+    private final SlotEventProducer slotEventProducer;
 
-    public ReservationService(SlotRepository slotRepository, NotificationService notificationService) {
+    public ReservationService(SlotRepository slotRepository, SlotEventProducer slotEventProducer) {
         this.slotRepository = slotRepository;
-        this.notificationService = notificationService;
+        this.slotEventProducer = slotEventProducer;
     }
 
     @Transactional
@@ -35,7 +36,7 @@ public class ReservationService {
         }
 
         SlotDto dto = SlotDto.from(slot);
-        notificationService.slotReserved(dto);
+        slotEventProducer.slotReserved(dto);
         return dto;
     }
 }

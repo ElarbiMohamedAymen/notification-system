@@ -4,12 +4,13 @@ import { getStompClient } from "./stompClient";
 import type { SlotDto } from "./types";
 
 /**
- * Subscribes to /topic/{topicName} for each given topic and invokes
+ * Subscribes to /topic/{cityName} (STOMP's own "/topic/" destination
+ * convention, unrelated to our domain City) for each given city and invokes
  * onSlotEvent for every push the server sends (new slot published, or a
  * slot elsewhere getting reserved). No polling: the callback only fires
  * when the server actually has something to say.
  */
-export function useTopicNotifications(topics: string[], onSlotEvent: (slot: SlotDto) => void) {
+export function useCityNotifications(cities: string[], onSlotEvent: (slot: SlotDto) => void) {
   const callbackRef = useRef(onSlotEvent);
   callbackRef.current = onSlotEvent;
 
@@ -18,12 +19,12 @@ export function useTopicNotifications(topics: string[], onSlotEvent: (slot: Slot
     const subscriptions = new Map<string, StompSubscription>();
 
     const subscribeAll = () => {
-      for (const topic of topics) {
-        if (subscriptions.has(topic)) continue;
-        const sub = client.subscribe(`/topic/${topic}`, (message) => {
+      for (const city of cities) {
+        if (subscriptions.has(city)) continue;
+        const sub = client.subscribe(`/topic/${city}`, (message) => {
           callbackRef.current(JSON.parse(message.body) as SlotDto);
         });
-        subscriptions.set(topic, sub);
+        subscriptions.set(city, sub);
       }
     };
 
@@ -36,5 +37,5 @@ export function useTopicNotifications(topics: string[], onSlotEvent: (slot: Slot
       subscriptions.forEach((sub) => sub.unsubscribe());
       subscriptions.clear();
     };
-  }, [topics.join(",")]);
+  }, [cities.join(",")]);
 }

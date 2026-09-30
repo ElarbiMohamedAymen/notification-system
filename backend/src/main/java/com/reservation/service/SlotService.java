@@ -1,12 +1,13 @@
 package com.reservation.service;
 
+import com.reservation.domain.City;
 import com.reservation.domain.Slot;
 import com.reservation.domain.SlotStatus;
-import com.reservation.domain.Topic;
 import com.reservation.dto.CreateSlotRequest;
 import com.reservation.dto.SlotDto;
+import com.reservation.event.SlotEventProducer;
+import com.reservation.repository.CityRepository;
 import com.reservation.repository.SlotRepository;
-import com.reservation.repository.TopicRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,33 +18,34 @@ import java.util.List;
 public class SlotService {
 
     private final SlotRepository slotRepository;
-    private final TopicRepository topicRepository;
-    private final NotificationService notificationService;
+    private final CityRepository cityRepository;
+    private final SlotEventProducer slotEventProducer;
 
-    public SlotService(SlotRepository slotRepository, TopicRepository topicRepository,
-                        NotificationService notificationService) {
+    public SlotService(SlotRepository slotRepository, CityRepository cityRepository,
+                        SlotEventProducer slotEventProducer) {
         this.slotRepository = slotRepository;
-        this.topicRepository = topicRepository;
-        this.notificationService = notificationService;
+        this.cityRepository = cityRepository;
+        this.slotEventProducer = slotEventProducer;
     }
 
     public SlotDto publishSlot(CreateSlotRequest request) {
-        Topic topic = topicRepository.findByName(request.topicName())
-                .orElseGet(() -> topicRepository.save(new Topic(request.topicName())));
+        City city = cityRepository.findByName(request.cityName())
+                .orElseGet(() -> cityRepository.save(new City(request.cityName())));
 
-        Slot slot = new Slot(topic, request.startTime(), request.endTime());
+        Slot slot = new Slot(city, request.startTime(), request.endTime());
         slot = slotRepository.save(slot);
 
         SlotDto dto = SlotDto.from(slot);
-        // Only subscribers of this topic receive the push - everyone else's
-        // client stays idle instead of polling for availability.
-        notificationService.slotPublished(dto);
+        // Published to RabbitMQ rather than pushed directly: every app
+        // instance consumes it and rebroadcasts to its own subscribers, so
+        // only users listening for this city ever see it - no polling.
+        slotEventProducer.slotPublished(dto);
         return dto;
     }
 
     @Transactional(readOnly = true)
-    public List<SlotDto> availableSlots(String topicName) {
-        return slotRepository.findByTopicNameAndStatus(topicName, SlotStatus.AVAILABLE).stream()
+    public List<SlotDto> availableSlots(String cityName) {
+        return slotRepository.findByCityNameAndStatus(cityName, SlotStatus.AVAILABLE).stream()
                 .map(SlotDto::from)
                 .toList();
     }

@@ -24,8 +24,8 @@ public class Slot {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "topic_id", nullable = false)
-    private Topic topic;
+    @JoinColumn(name = "city_id", nullable = false)
+    private City city;
 
     @Column(nullable = false)
     private Instant startTime;
@@ -49,8 +49,8 @@ public class Slot {
     protected Slot() {
     }
 
-    public Slot(Topic topic, Instant startTime, Instant endTime) {
-        this.topic = topic;
+    public Slot(City city, Instant startTime, Instant endTime) {
+        this.city = city;
         this.startTime = startTime;
         this.endTime = endTime;
     }
@@ -68,8 +68,8 @@ public class Slot {
         return id;
     }
 
-    public Topic getTopic() {
-        return topic;
+    public City getCity() {
+        return city;
     }
 
     public Instant getStartTime() {

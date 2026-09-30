@@ -1,19 +1,21 @@
 import { useEffect, useState } from "react";
 import * as api from "./api";
 import type { SlotDto } from "./types";
-import { useTopicNotifications } from "./useTopicNotifications";
+import { useCityNotifications } from "./useCityNotifications";
+
+const CITY_SUGGESTIONS = ["Paris", "Lyon", "Marseille", "Tunis", "Sfax", "Sousse"];
 
 export default function UserPanel({ userId }: { userId: string }) {
-  const [topicInput, setTopicInput] = useState("station-42");
-  const [subscribedTopics, setSubscribedTopics] = useState<string[]>([]);
+  const [cityInput, setCityInput] = useState("");
+  const [myCities, setMyCities] = useState<string[]>([]);
   const [slots, setSlots] = useState<Record<number, SlotDto>>({});
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    api.mySubscriptions(userId).then(setSubscribedTopics).catch(() => {});
+    api.mySubscriptions(userId).then(setMyCities).catch(() => {});
   }, [userId]);
 
-  useTopicNotifications(subscribedTopics, (slot) => {
+  useCityNotifications(myCities, (slot) => {
     setSlots((prev) => {
       const next = { ...prev };
       if (slot.status === "AVAILABLE") {
@@ -25,13 +27,14 @@ export default function UserPanel({ userId }: { userId: string }) {
     });
   });
 
-  async function handleSubscribe() {
-    const topic = topicInput.trim();
-    if (!topic || subscribedTopics.includes(topic)) return;
-    await api.subscribeTopic(userId, topic);
-    setSubscribedTopics((prev) => [...prev, topic]);
+  async function handleAddCity() {
+    const city = cityInput.trim();
+    if (!city || myCities.includes(city)) return;
+    await api.subscribeCity(userId, city);
+    setMyCities((prev) => [...prev, city]);
+    setCityInput("");
 
-    const existing = await api.availableSlots(topic);
+    const existing = await api.availableSlots(city);
     setSlots((prev) => {
       const next = { ...prev };
       for (const slot of existing) next[slot.id] = slot;
@@ -39,13 +42,13 @@ export default function UserPanel({ userId }: { userId: string }) {
     });
   }
 
-  async function handleUnsubscribe(topic: string) {
-    await api.unsubscribeTopic(userId, topic);
-    setSubscribedTopics((prev) => prev.filter((t) => t !== topic));
+  async function handleRemoveCity(city: string) {
+    await api.unsubscribeCity(userId, city);
+    setMyCities((prev) => prev.filter((c) => c !== city));
     setSlots((prev) => {
       const next = { ...prev };
       for (const [id, slot] of Object.entries(next)) {
-        if (slot.topicName === topic) delete next[Number(id)];
+        if (slot.cityName === city) delete next[Number(id)];
       }
       return next;
     });
@@ -70,22 +73,29 @@ export default function UserPanel({ userId }: { userId: string }) {
 
   return (
     <div>
-      <h2>Subscribe to a topic</h2>
+      <h2>Cities you want to hear about</h2>
       <div className="row">
         <input
-          value={topicInput}
-          onChange={(e) => setTopicInput(e.target.value)}
-          placeholder="e.g. station-42"
+          value={cityInput}
+          onChange={(e) => setCityInput(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleAddCity()}
+          placeholder="e.g. Paris"
+          list="city-suggestions"
         />
-        <button onClick={handleSubscribe}>Subscribe</button>
+        <datalist id="city-suggestions">
+          {CITY_SUGGESTIONS.map((city) => (
+            <option key={city} value={city} />
+          ))}
+        </datalist>
+        <button onClick={handleAddCity}>Add city</button>
       </div>
 
-      <h3>Your subscriptions</h3>
-      {subscribedTopics.length === 0 && <p className="muted">No subscriptions yet.</p>}
+      <h3>Your cities</h3>
+      {myCities.length === 0 && <p className="muted">No cities added yet - add one above to start receiving notifications.</p>}
       <ul>
-        {subscribedTopics.map((topic) => (
-          <li key={topic}>
-            {topic} <button onClick={() => handleUnsubscribe(topic)}>Unsubscribe</button>
+        {myCities.map((city) => (
+          <li key={city}>
+            {city} <button onClick={() => handleRemoveCity(city)}>Remove</button>
           </li>
         ))}
       </ul>
@@ -96,7 +106,7 @@ export default function UserPanel({ userId }: { userId: string }) {
       <ul>
         {visibleSlots.map((slot) => (
           <li key={slot.id}>
-            [{slot.topicName}] {new Date(slot.startTime).toLocaleString()} -{" "}
+            [{slot.cityName}] {new Date(slot.startTime).toLocaleString()} -{" "}
             {new Date(slot.endTime).toLocaleString()}{" "}
             <button onClick={() => handleReserve(slot)}>Reserve</button>
           </li>

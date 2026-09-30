@@ -6,7 +6,7 @@ import java.time.Instant;
 
 public record SlotDto(
         Long id,
-        String topicName,
+        String cityName,
         Instant startTime,
         Instant endTime,
         String status,
@@ -16,7 +16,7 @@ public record SlotDto(
     public static SlotDto from(Slot slot) {
         return new SlotDto(
                 slot.getId(),
-                slot.getTopic().getName(),
+                slot.getCity().getName(),
                 slot.getStartTime(),
                 slot.getEndTime(),
                 slot.getStatus().name(),

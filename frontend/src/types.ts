@@ -1,6 +1,6 @@
 export interface SlotDto {
   id: number;
-  topicName: string;
+  cityName: string;
   startTime: string;
   endTime: string;
   status: "AVAILABLE" | "RESERVED";

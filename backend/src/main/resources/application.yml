@@ -15,5 +15,11 @@ spring:
         format_sql: true
     open-in-view: false
 
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: reservation
+    password: reservation
+
 server:
   port: 8080

@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 
 public record CreateSlotRequest(
-        @NotBlank String topicName,
+        @NotBlank String cityName,
         @NotNull Instant startTime,
         @NotNull Instant endTime
 ) {
